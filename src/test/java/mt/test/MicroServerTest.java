@@ -4,7 +4,7 @@ import mt.Order;
 import mt.comm.ServerComm;
 import mt.comm.ServerSideMessage;
 import mt.comm.ServerSideMessage.Type;
-import mt.server.MicroServer;
+import mt.server.MicroServerAS;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -23,7 +23,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class MicroServerTest {
 	
-	private MicroServer ms;
+	private MicroServerAS ms;
 	
 	@Mock
 	private ServerComm serverComm;
@@ -63,7 +63,7 @@ public class MicroServerTest {
 	
 	@Before
 	public void setup(){
-		ms = new MicroServer();
+		ms = new MicroServerAS();
 		
 		when(msg1.getType()).thenReturn(Type.CONNECTED);
 		when(msg1.getOrder()).thenReturn(null);
@@ -117,7 +117,7 @@ public class MicroServerTest {
 	@Test
 	public void testMicroServer() throws Exception {
 		ms = null;
-		ms = new MicroServer();
+		ms = new MicroServerAS();
 		Assert.assertNotNull(ms);
 	}
 
