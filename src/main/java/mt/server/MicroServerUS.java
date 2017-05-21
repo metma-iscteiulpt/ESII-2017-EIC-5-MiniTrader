@@ -256,11 +256,6 @@ public class MicroServerUS implements MicroTraderServer {
 		// if is sell order
 		if (o.isSellOrder()) {
 				processSell(msg.getOrder());
-				
-			
-		}else{
-				serverComm.sendError(msg.getSenderNickname(), "ultrapassou limite sell ");
-							
 		}
 		
 		// notify clients of changed order
