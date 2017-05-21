@@ -75,8 +75,8 @@ public class MicroServerAS implements MicroTraderServer {
 	 */
 	private static int id = 1;
 	
-	/** The value is {@value #vazio} */
-	public static final int vazio = 0;//
+	/** The value is {@value #EMPTY} */
+	public static final int EMPTY = 0;//
 
 	/**
 	 * Constructor
@@ -122,7 +122,7 @@ public class MicroServerAS implements MicroTraderServer {
 						verifyUserConnected(msg);
 						
 						if (msg.getOrder().getNumberOfUnits() >= 10) {
-							if(msg.getOrder().getServerOrderID() == vazio){
+							if(msg.getOrder().getServerOrderID() == EMPTY){
 								msg.getOrder().setServerOrderID(id++);
 							}
 							notifyAllClients(msg.getOrder());
@@ -330,11 +330,11 @@ public class MicroServerAS implements MicroTraderServer {
 		if (buyOrder.getNumberOfUnits() >= sellerOrder.getNumberOfUnits()) {
 			buyOrder.setNumberOfUnits(buyOrder.getNumberOfUnits()
 					- sellerOrder.getNumberOfUnits());
-			sellerOrder.setNumberOfUnits(vazio);
+			sellerOrder.setNumberOfUnits(EMPTY);
 		} else {
 			sellerOrder.setNumberOfUnits(sellerOrder.getNumberOfUnits()
 					- buyOrder.getNumberOfUnits());
-			buyOrder.setNumberOfUnits(vazio);
+			buyOrder.setNumberOfUnits(EMPTY);
 		}
 		updatedOrders.add(buyOrder);
 		updatedOrders.add(sellerOrder);
@@ -381,7 +381,7 @@ public class MicroServerAS implements MicroTraderServer {
 			Iterator<Order> it = entry.getValue().iterator();
 			while (it.hasNext()) {
 				Order o = it.next();
-				if (o.getNumberOfUnits() == vazio) {
+				if (o.getNumberOfUnits() == EMPTY) {
 					it.remove();
 				}
 			}
@@ -472,23 +472,29 @@ public class MicroServerAS implements MicroTraderServer {
 	}
 	//constraints 2
 	
-	public boolean unfulfilledOrder( String nickname) {
-			
-		List <Order> unfulfilled = new ArrayList<>();
-			for (Entry<String, Set<Order>> entry : orderMap.entrySet()) {
-				Iterator<Order> it = entry.getValue().iterator();
-				while (it.hasNext()) {
-					Order o = it.next();
-					if (o.getNumberOfUnits() != vazio && o.getNickname().equals(nickname)){
-						unfulfilled.add(o);
+		public boolean unfulfilledOrder( String nickname) {
+					Set<Order> orders = orderMap.get(nickname);
+			 
+					int limitReached = 0;
+					
+					//SEARCH BY NICKNAME
+					for (Order o : orders) {
+						if (o.getNumberOfUnits() != EMPTY && o.getNickname().equals(nickname)){
+							limitReached++;
+						}
 					}
-				}
-				if(unfulfilled.size() > 5){
-					System.out.println("Ultrapassaram o limite de vendas não cumpridas");
-				} return true;
-			}
-			return false;
-	}	
+					boolean islimit = true;
+					if(limitReached < 5){
+						islimit = false;	
+					}else {
+						serverComm.sendError(nickname, "Ultrapassaram limite vendas não processadas");
+						islimit = true;
+					}
+					return !islimit;
+		}
+			
+			
+		
 	
 	
 	
