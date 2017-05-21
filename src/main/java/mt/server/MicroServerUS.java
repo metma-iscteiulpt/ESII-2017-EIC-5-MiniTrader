@@ -256,6 +256,8 @@ public class MicroServerUS implements MicroTraderServer {
 		// if is sell order
 		if (o.isSellOrder()) {
 				processSell(msg.getOrder());
+		}else{
+			System.out.println("Ultrapassou limite vendas não processadas");
 		}
 		
 		// notify clients of changed order
