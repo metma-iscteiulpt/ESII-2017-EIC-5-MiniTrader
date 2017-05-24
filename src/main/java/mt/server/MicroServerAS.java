@@ -430,15 +430,17 @@ public class MicroServerAS implements MicroTraderServer {
 	        // Create new element Order with attributes
 	        Element newElementOrder = doc.createElement("Order");
 	        Element id = doc.createElement("Id");
+	        Element nickname = doc.createElement("Nickname");
 	        Element type = doc.createElement("Type");
 	        Element stock = doc.createElement("Stock");
 	        Element units = doc.createElement("Units");
 	        Element price= doc.createElement("Price");
-	        
+	      
 	        id.setTextContent(String.valueOf(msg.getOrder().getServerOrderID()));
 	        stock.setTextContent(String.valueOf(msg.getOrder().getStock()));
 	        units.setTextContent(String.valueOf(msg.getOrder().getNumberOfUnits()));
 	        price.setTextContent(String.valueOf(msg.getOrder().getPricePerUnit()));
+	        nickname.setTextContent(String.valueOf(msg.getOrder().getNickname()));
 	        
 	        if(msg.getOrder().isBuyOrder()){
 	        	type.setTextContent("Buy");
@@ -451,6 +453,7 @@ public class MicroServerAS implements MicroTraderServer {
 	        newElementOrder.appendChild(stock);
 	        newElementOrder.appendChild(units);
 	        newElementOrder.appendChild(price);
+	        newElementOrder.appendChild(nickname);
 	        
 	        // Add new node to XML document root element
 	        System.out.println("----- Adding new element to root element -----");
