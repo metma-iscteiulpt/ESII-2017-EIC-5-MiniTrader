@@ -472,35 +472,5 @@ public class MicroServerAS implements MicroTraderServer {
 	   	 
 	   }
 			
-	}
-	//constraints 2
-	
-		public boolean unfulfilledOrder( String nickname) {
-					Set<Order> orders = orderMap.get(nickname);
-			 
-					int limitReached = 0;
-					
-					//SEARCH BY NICKNAME
-					for (Order o : orders) {
-						if (o.getNumberOfUnits() != EMPTY && o.getNickname().equals(nickname)){
-							limitReached++;
-						}
-					}
-					boolean islimit = true;
-					if(limitReached < 5){
-						islimit = false;	
-					}else {
-						serverComm.sendError(nickname, "Ultrapassaram limite vendas não processadas");
-						islimit = true;
-					}
-					return !islimit;
-		}
-			
-			
-		
-	
-	
-	
-	
-	
+	}	
 }
