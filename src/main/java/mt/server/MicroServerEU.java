@@ -318,6 +318,7 @@ public class MicroServerEU implements MicroTraderServer {
 	 */
 	private void doTransaction(Order buyOrder, Order sellerOrder) {
 		LOGGER.log(Level.INFO, "Processing transaction between seller and buyer...");
+		
 		if (!buyOrder.getNickname().equals(sellerOrder.getNickname())) {//contraints 1
 			if (buyOrder.getNumberOfUnits() >= sellerOrder.getNumberOfUnits()) {
 				buyOrder.setNumberOfUnits(buyOrder.getNumberOfUnits() - sellerOrder.getNumberOfUnits());
