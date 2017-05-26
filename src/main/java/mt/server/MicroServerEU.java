@@ -240,7 +240,7 @@ public class MicroServerEU implements MicroTraderServer {
 			processSell(msg.getOrder());
 			notifyAllClients(msg.getOrder());
 		} else {
-			LOGGER.log(Level.INFO, "ERRO: MAIS DO QUE 5 SELL ORDERS");
+			LOGGER.log(Level.INFO, "ERRO: Mais do que cinco sell orders por tratar");
 		}
 	
 
