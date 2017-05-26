@@ -1,6 +1,0 @@
-
-java/mt/server/MicroServerAS.java:494:		A high number of imports can indicate a high degree of coupling within an object.
-java/mt/server/MicroServerAS.java:494:		Possible God class (WMC=58, ATFD=80, TCC=0.05)
-java/mt/server/MicroTraderServer.java:6:	Comment is too large: Line too long
-java/mt/server/MicroTraderServer.java:16:	Comment is too large: Line too long
-java/mt/server/MicroTraderServer.java:19:	Avoid modifiers which are implied by the context
