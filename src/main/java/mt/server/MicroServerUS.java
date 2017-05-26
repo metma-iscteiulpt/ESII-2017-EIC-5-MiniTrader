@@ -254,10 +254,12 @@ public class MicroServerUS implements MicroTraderServer {
 		}
 		
 		// if is sell order
-		if (o.isSellOrder()) {
-				processSell(msg.getOrder());
-		}else{
-			System.out.println("Ultrapassou limite vendas não processadas");
+		if (unfulfilledOrder(o.getNickname())) {
+			saveOrder(o);
+			processSell(msg.getOrder());
+			notifyAllClients(msg.getOrder());
+		} else {
+			LOGGER.log(Level.INFO, "ERRO: Mais do que cinco sell orders por tratar");
 		}
 		
 		// notify clients of changed order
@@ -343,12 +345,6 @@ public class MicroServerUS implements MicroTraderServer {
 			updatedOrders.add(buyOrder);
 			updatedOrders.add(sellerOrder);
 		}
-	
-	
-	
-
-	
-	
 	/**
 	 * Notifies clients about a changed order
 	 * 
@@ -498,7 +494,7 @@ public class MicroServerUS implements MicroTraderServer {
 				if(limitReached < 5){
 					islimit = false;	
 				}else {
-					serverComm.sendError(nickname, "Ultrapassaram limite vendas não processadas");
+					//serverComm.sendError(nickname, "Ultrapassaram limite vendas não processadas");
 					islimit = true;
 				}
 				return !islimit;
