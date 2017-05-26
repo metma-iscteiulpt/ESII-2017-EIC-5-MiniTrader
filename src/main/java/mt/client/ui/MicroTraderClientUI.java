@@ -21,7 +21,7 @@ public class MicroTraderClientUI extends javax.swing.JFrame {
 
     private Timer timer;
 
-    private final String screenTitle = "Micro Trader";
+    private final String screenTitle = "Mini Trader";
     
     private final Controller controller = new Controller();
     
