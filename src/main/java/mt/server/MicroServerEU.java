@@ -29,7 +29,7 @@ import mt.filter.AnalyticsFilter;
 public class MicroServerEU implements MicroTraderServer {
 
 	public static void main(String[] args) {
-		ServerComm serverComm = new AnalyticsFilter(new ServerCommImpl());
+		ServerComm serverComm = new ServerCommImpl();
 		MicroTraderServer server = new MicroServerEU();
 		server.start(serverComm);
 	}
@@ -235,9 +235,14 @@ public class MicroServerEU implements MicroTraderServer {
 		}
 
 		// if is sell order
-		if (o.isSellOrder()) {
+		if (unfulfilledOrder(o.getNickname())) {
+			saveOrder(o);
 			processSell(msg.getOrder());
+			notifyAllClients(msg.getOrder());
+		} else {
+			LOGGER.log(Level.INFO, "ERRO: MAIS DO QUE 5 SELL ORDERS");
 		}
+	
 
 		// notify clients of changed order
 		notifyClientsOfChangedOrders();
@@ -320,6 +325,7 @@ public class MicroServerEU implements MicroTraderServer {
 		LOGGER.log(Level.INFO, "Processing transaction between seller and buyer...");
 		
 		if (!buyOrder.getNickname().equals(sellerOrder.getNickname())) {//contraints 1
+			
 			if (buyOrder.getNumberOfUnits() >= sellerOrder.getNumberOfUnits()) {
 				buyOrder.setNumberOfUnits(buyOrder.getNumberOfUnits() - sellerOrder.getNumberOfUnits());
 				sellerOrder.setNumberOfUnits(EMPTY);
@@ -327,9 +333,15 @@ public class MicroServerEU implements MicroTraderServer {
 				sellerOrder.setNumberOfUnits(sellerOrder.getNumberOfUnits() - buyOrder.getNumberOfUnits());
 				buyOrder.setNumberOfUnits(EMPTY);
 			}
+			
+			updatedOrders.add(buyOrder);
+			updatedOrders.add(sellerOrder);
 		}
-		updatedOrders.add(buyOrder);
-		updatedOrders.add(sellerOrder);
+		
+		else {
+			
+			LOGGER.log(Level.INFO, "WARNING: nome vendedor e comprador igual");
+		}
 	}
 
 	/**
@@ -385,7 +397,7 @@ public class MicroServerEU implements MicroTraderServer {
 
 	//constraints 2
 	
-		public boolean unfulfilledOrder( String nickname) {
+		public boolean unfulfilledOrder( String nickname){
 					Set<Order> orders = orderMap.get(nickname);
 			 
 					int limitReached = 0;
@@ -401,7 +413,7 @@ public class MicroServerEU implements MicroTraderServer {
 						
 						islimit = false;	
 					}else {
-						serverComm.sendError(nickname, "Ultrapassaram limite vendas não processadas");
+						//throw new ServerException("Ultrapassaram limite vendas não processadas");
 						islimit = true;
 					}
 					
