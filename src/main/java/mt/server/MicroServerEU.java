@@ -102,14 +102,11 @@ public class MicroServerEU implements MicroTraderServer {
 				try {
 					verifyUserConnected(msg);
 					
-					if (msg.getOrder().getNumberOfUnits() >= 10) {
 						if (msg.getOrder().getServerOrderID() == EMPTY) {
 								msg.getOrder().setServerOrderID(id++);
 						}
 						
-						notifyAllClients(msg.getOrder());
 						processNewOrder(msg);
-					}
 				} catch (ServerException e) {
 					serverComm.sendError(msg.getSenderNickname(), e.getMessage());
 				}
@@ -225,24 +222,30 @@ public class MicroServerEU implements MicroTraderServer {
 
 		Order o = msg.getOrder();
 		
+		if (msg.getOrder().getNumberOfUnits() >= 10) {
+			
 			// if is buy order
 			if (o.isBuyOrder()) {
 				// save the order on map
 				saveOrder(o);
 				processBuy(msg.getOrder());
+				notifyAllClients(msg.getOrder());
 			}	
 
 			// if is sell order
 			if (o.isSellOrder()) {
 		
-				if (unfulfilledOrder(o.getNickname()) < 5) {
+				if (unfulfilledOrder(o.getNickname()) < 5) { //br2
 					// save the order on map
 					saveOrder(o);
 					processSell(msg.getOrder());
+					notifyAllClients(msg.getOrder());
+					
 				} else {
-					LOGGER.log(Level.INFO, "ERRO: MAIS DO QUE 5 SELL ORDERS");
+					LOGGER.log(Level.INFO, "Mais do que 5 orders unfulfilled");
 				}
 			}
+		}
 
 		// notify clients of changed order
 		notifyClientsOfChangedOrders();
@@ -322,7 +325,7 @@ public class MicroServerEU implements MicroTraderServer {
 	private void doTransaction(Order buyOrder, Order sellerOrder) {
 		LOGGER.log(Level.INFO, "Processing transaction between seller and buyer...");
 		
-		if (!buyOrder.getNickname().equals(sellerOrder.getNickname())) {//contraints 1
+		if (!buyOrder.getNickname().equals(sellerOrder.getNickname())) { //br1
 			
 			if (buyOrder.getNumberOfUnits() >= sellerOrder.getNumberOfUnits()) {
 				buyOrder.setNumberOfUnits(buyOrder.getNumberOfUnits() - sellerOrder.getNumberOfUnits());
@@ -393,7 +396,7 @@ public class MicroServerEU implements MicroTraderServer {
 	}
 
 	/**
-	 * count unfulfilled orders 
+	 * count unfulfilled orders br2
 	 */
 		public int unfulfilledOrder(String nickname){
 			int limitOfUnfulfilledOrders = 0;
