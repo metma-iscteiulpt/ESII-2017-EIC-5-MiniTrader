@@ -127,6 +127,8 @@ public class MicroServerUS implements MicroTraderServer {
 						}
 						
 						processNewOrder(msg);
+						
+				
 				} catch (ServerException e) {
 					serverComm.sendError(msg.getSenderNickname(), e.getMessage());
 				}
@@ -267,8 +269,9 @@ public class MicroServerUS implements MicroTraderServer {
 					LOGGER.log(Level.INFO, "Mais do que 5 orders unfulfilled");
 				}
 			}
+			generateAndExportToXML(msg);
 		}
-
+		
 		// notify clients of changed order
 		notifyClientsOfChangedOrders();
 
