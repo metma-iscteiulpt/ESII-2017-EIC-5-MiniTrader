@@ -29,7 +29,7 @@ import mt.filter.AnalyticsFilter;
 public class MicroServerEU implements MicroTraderServer {
 
 	public static void main(String[] args) {
-		ServerComm serverComm = new ServerCommImpl();
+		ServerComm serverComm = new AnalyticsFilter (new ServerCommImpl());
 		MicroTraderServer server = new MicroServerEU();
 		server.start(serverComm);
 	}
@@ -101,14 +101,14 @@ public class MicroServerEU implements MicroTraderServer {
 			case NEW_ORDER:
 				try {
 					verifyUserConnected(msg);
+					
 					if (msg.getOrder().getNumberOfUnits() >= 10) {
 						if (msg.getOrder().getServerOrderID() == EMPTY) {
-							msg.getOrder().setServerOrderID(id++);
+								msg.getOrder().setServerOrderID(id++);
 						}
-						if(unfulfilledOrder(msg.getOrder().getNickname())){
-							notifyAllClients(msg.getOrder());
-							processNewOrder(msg);
-						}
+						
+						notifyAllClients(msg.getOrder());
+						processNewOrder(msg);
 					}
 				} catch (ServerException e) {
 					serverComm.sendError(msg.getSenderNickname(), e.getMessage());
@@ -137,7 +137,6 @@ public class MicroServerEU implements MicroTraderServer {
 			}
 		}
 		throw new ServerException("The user " + msg.getSenderNickname() + " is not connected.");
-
 	}
 
 	/**
@@ -225,24 +224,25 @@ public class MicroServerEU implements MicroTraderServer {
 		LOGGER.log(Level.INFO, "Processing new order...");
 
 		Order o = msg.getOrder();
+		
+			// if is buy order
+			if (o.isBuyOrder()) {
+				// save the order on map
+				saveOrder(o);
+				processBuy(msg.getOrder());
+			}	
 
-		// save the order on map
-		saveOrder(o);
-
-		// if is buy order
-		if (o.isBuyOrder()) {
-			processBuy(msg.getOrder());
-		}
-
-		// if is sell order
-		if (unfulfilledOrder(o.getNickname())) {
-			saveOrder(o);
-			processSell(msg.getOrder());
-			notifyAllClients(msg.getOrder());
-		} else {
-			LOGGER.log(Level.INFO, "ERRO: Mais do que cinco sell orders por tratar");
-		}
-	
+			// if is sell order
+			if (o.isSellOrder()) {
+		
+				if (unfulfilledOrder(o.getNickname()) < 5) {
+					// save the order on map
+					saveOrder(o);
+					processSell(msg.getOrder());
+				} else {
+					LOGGER.log(Level.INFO, "ERRO: MAIS DO QUE 5 SELL ORDERS");
+				}
+			}
 
 		// notify clients of changed order
 		notifyClientsOfChangedOrders();
@@ -287,7 +287,6 @@ public class MicroServerEU implements MicroTraderServer {
 				}
 			}
 		}
-
 	}
 
 	/**
@@ -308,7 +307,6 @@ public class MicroServerEU implements MicroTraderServer {
 				}
 			}
 		}
-
 	}
 
 	/**
@@ -336,9 +334,8 @@ public class MicroServerEU implements MicroTraderServer {
 			
 			updatedOrders.add(buyOrder);
 			updatedOrders.add(sellerOrder);
-		}
-		
-		else {
+			
+		}else {
 			
 			LOGGER.log(Level.INFO, "WARNING: nome vendedor e comprador igual");
 		}
@@ -395,28 +392,22 @@ public class MicroServerEU implements MicroTraderServer {
 		}
 	}
 
-	//constraints 2
-	
-		public boolean unfulfilledOrder( String nickname){
-					Set<Order> orders = orderMap.get(nickname);
-			 
-					int limitReached = 0;
-					
-					//SEARCH BY NICKNAME
-					for (Order o : orders) {
-						if (o.getNumberOfUnits() != EMPTY && o.getNickname().equals(nickname)){
-							limitReached++;
-						}
+	/**
+	 * count unfulfilled orders 
+	 */
+		public int unfulfilledOrder(String nickname){
+			int limitOfUnfulfilledOrders = 0;
+			
+			for (Entry<String, Set<Order>> entry : orderMap.entrySet()) {
+				Iterator<Order> iterator = entry.getValue().iterator();
+				
+				while (iterator.hasNext()) {
+					Order o = iterator.next();
+					if (o.getNumberOfUnits() != EMPTY && o.getNickname().equals(nickname)) {
+						limitOfUnfulfilledOrders++;
 					}
-					boolean islimit = true;
-					if(limitReached < 5){
-						
-						islimit = false;	
-					}else {
-						//throw new ServerException("Ultrapassaram limite vendas não processadas");
-						islimit = true;
-					}
-					
-					return !islimit;
+				}
+			}
+			return limitOfUnfulfilledOrders;	
 		}
 }
