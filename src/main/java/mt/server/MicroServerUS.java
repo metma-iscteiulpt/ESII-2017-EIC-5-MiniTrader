@@ -43,7 +43,7 @@ import mt.filter.AnalyticsFilter;
  * MicroTraderServer implementation. This class should be responsible
  * to do the business logic of stock transactions between buyers and sellers.
  * 
- * @author Group 78
+ * @author Group 5
  *
  */
 public class MicroServerUS implements MicroTraderServer {
@@ -314,7 +314,6 @@ public class MicroServerUS implements MicroTraderServer {
 				}
 			}
 		}
-
 	}
 
 	/**
@@ -440,7 +439,7 @@ public class MicroServerUS implements MicroTraderServer {
 	}
 	
 	/**
-	 * write to xml
+	 * write to xml file
 	 */
 	public void generateAndExportToXML(ServerSideMessage msg){
 		
@@ -520,10 +519,10 @@ public class MicroServerUS implements MicroTraderServer {
 	        transformer.transform(source, result);
 	     } catch (Exception e) { e.printStackTrace();
 	   	 
-	     }
+	    }
 			
-		}		
-	
+	}		
+
 }	
 		
 		
